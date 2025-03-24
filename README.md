@@ -4,3 +4,5 @@
 
 **Lista de practicas**
 - Practica 01
+- Practica 02
+- Practica 03
