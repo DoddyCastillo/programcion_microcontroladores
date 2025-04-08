@@ -19,6 +19,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "API_uart.h"
+#include "API_delay.h"
+#include "API_debounce.h"
 #include <string.h>
 #include <stdint.h>
 
@@ -100,9 +102,8 @@ int main(void)
     }
   }
 
-  uartSendString((uint8_t*)"\033[31m");
-  uartSendString((uint8_t*)"Texto en rojo\r\n");
-  uartSendString((uint8_t*)"\033[0m");
+  debounceFSM_init();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -110,7 +111,8 @@ int main(void)
 
   while(1)
   {
-
+      debounceFSM_update(B1_GPIO_Port, B1_Pin);
+      toggle_led(LD2_GPIO_Port, LD2_Pin);
   }
 
   /* USER CODE END 3 */

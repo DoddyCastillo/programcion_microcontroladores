@@ -19,3 +19,12 @@ void uartSendStringSize(uint8_t * pstring, uint16_t size);
 
 void uartReceiveStringSize(uint8_t * pstring, uint16_t size);
 ```	
+
+
+**Punto 2**
+
+Implementar un programa que utilice el módulo de uart implementado por ustedes para informar al usuario cuando se producen los flancos ascendentes y descendentes.
+
+```	
+“Flanco ascendente/descendente detectado”
+```	
