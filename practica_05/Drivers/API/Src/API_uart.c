@@ -8,15 +8,17 @@
 
 #include "API_uart.h"
 #include <string.h>
+#include <stdio.h>
 
 #define UART_TIMEOUT 100
 #define UART_MAX_SIZE 1024
+#define MAX_LENGHT_BUFFER 64
 
 static UART_HandleTypeDef huart2;
 
 static bool_t checkPointer(const uint8_t *ptr);
 static bool_t checkSize(uint16_t size);
-
+static char buffer_config[MAX_LENGHT_BUFFER];
 
 /**
  * @brief Inicializa la UART2 con parámetros definidos.
@@ -123,4 +125,60 @@ static bool_t checkPointer(const uint8_t *ptr)
 static bool_t checkSize(uint16_t size)
 {
 	return (size > 0 && size <= UART_MAX_SIZE);
+}
+
+/**
+ * @brief Limpia la terminal y muestra los parámetros de configuración de la UART.
+ *
+ * Envía una secuencia ANSI para borrar la terminal y luego imprime
+ * 4 parámetros configurados de UART2.
+ */
+void uartPrintConfig(void)
+{
+	const char *clr_cmd = "\x1b[2J\x1b[H"; // Borrar pantalla y mover cursor al inicio
+	uartSendString((uint8_t*)clr_cmd);
+
+	uartSendString((uint8_t*)"----- CONFIGURACION UART -----\r\n");
+
+	// Baudrate actual
+	snprintf(buffer_config, sizeof(buffer_config), "Baudrate: %lu\r\n", huart2.Init.BaudRate);
+	uartSendString((uint8_t*)buffer_config);
+
+	// Longitud de palabra
+	const char *wordLen = (huart2.Init.WordLength == UART_WORDLENGTH_8B) ? "8 bits" : "9 bits";
+	snprintf(buffer_config, sizeof(buffer_config), "Word Length: %s\r\n", wordLen);
+	uartSendString((uint8_t*)buffer_config);
+
+	// Bits de parada
+	const char *stopBits = (huart2.Init.StopBits == UART_STOPBITS_1) ? "1" : "2";
+	snprintf(buffer_config, sizeof(buffer_config), "Stop Bits: %s\r\n", stopBits);
+	uartSendString((uint8_t*)buffer_config);
+
+	// Paridad
+	const char *parity = "None";
+	if (huart2.Init.Parity == UART_PARITY_EVEN) parity = "Even";
+	else if (huart2.Init.Parity == UART_PARITY_ODD) parity = "Odd";
+	snprintf(buffer_config, sizeof(buffer_config), "Parity: %s\r\n", parity);
+	uartSendString((uint8_t*)buffer_config);
+
+	uartSendString((uint8_t*)"------------------------------\r\n");
+}
+
+/**
+ * @brief Revisa si se recibió el carácter 'c' por UART y responde con configuración.
+ *
+ * Esta función es no bloqueante. Si detecta el carácter 'c',
+ * ejecuta uartPrintConfig().
+ */
+
+void uartCheckCommands(void)
+{
+	uint8_t rx = 0;
+
+	uartReceiveStringSize(&rx, 1);  // usamos la API de nuestro módulo
+
+	if (rx == 'c')
+	{
+		uartPrintConfig();
+	}
 }

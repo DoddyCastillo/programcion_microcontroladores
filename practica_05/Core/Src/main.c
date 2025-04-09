@@ -113,6 +113,8 @@ int main(void)
   {
       debounceFSM_update(B1_GPIO_Port, B1_Pin);
       toggle_led(LD2_GPIO_Port, LD2_Pin);
+
+      uartCheckCommands();
   }
 
   /* USER CODE END 3 */
